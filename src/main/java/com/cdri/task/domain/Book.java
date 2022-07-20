@@ -1,5 +1,6 @@
 package com.cdri.task.domain;
 
+import com.cdri.task.utils.BookStatus;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,19 +26,15 @@ public class Book extends TimeEntity {
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     @Column(nullable = false)
-    private List<Category> categoryList = new ArrayList<>();
+    private List<BookCategory> categoryList = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    private BookStatus bookStatus;
 
     @Builder
-    public Book(String writer, String title, List<Category> categoryList) {
+    public Book(String writer, String title) {
         this.writer = writer;
         this.title = title;
-        for (Category category : categoryList) {
-            this.addCategory(category);
-        }
-    }
-
-    public void addCategory(Category category) {
-        categoryList.add(category);
-        category.setBook(this);
+        this.bookStatus = BookStatus.정상;
     }
 }

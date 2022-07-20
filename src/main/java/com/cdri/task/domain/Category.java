@@ -1,9 +1,10 @@
 package com.cdri.task.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -18,10 +19,9 @@ public class Category {
     @Column(nullable = false)
     private String name;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "book_id")
-    private Book book;
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
+    @Column(nullable = false)
+    private List<BookCategory> categoryList = new ArrayList<>();
 
     @Builder
     public Category(String name) {
