@@ -22,18 +22,33 @@ import java.util.List;
 public class BookController {
     private final BookService bookService;
 
-    // list
-    @GetMapping
-    public ResponseEntity<CommonResponse<List<BookResDto>>> getBookList() {
-        return new ResponseEntity<>(bookService.getBookList(), HttpStatus.OK);
-    }
+//    @GetMapping
+//    public ResponseEntity<CommonResponse<List<BookResDto>>> getBookList() {
+//        return new ResponseEntity<>(bookService.getBookList(), HttpStatus.OK);
+//    }
 
     // getById
 //    @GetMapping("/books/{bookId}")
 
-    // Search
+    // 검색 조회 + 전체 도서 목록 조회
+    @GetMapping()
+    public ResponseEntity<CommonResponse<List<BookResDto>>> getBookListBySearch(@RequestParam(required = false) String writer,
+                                                                                @RequestParam(required = false) String title,
+                                                                                @RequestParam(required = false) String category) {
 
-    // saveBook
+        if (writer != null) {
+            return new ResponseEntity<>(bookService.getBookListByWriter(writer), HttpStatus.OK);
+        }
+        if (title != null) {
+            return new ResponseEntity<>(bookService.getBookListByTitle(title), HttpStatus.OK);
+        }
+        if (category != null) {
+            return new ResponseEntity<>(bookService.getBookListByCategory(category), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(bookService.getBookList(), HttpStatus.OK);
+    }
+
     @PostMapping()
     public ResponseEntity<CommonResponse> saveBook(@Valid @RequestBody BookReqDto reqDto) {
         return new ResponseEntity<>(bookService.createBook(reqDto), HttpStatus.OK);

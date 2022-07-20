@@ -8,10 +8,12 @@ import com.cdri.task.dto.res.BookResDto;
 import com.cdri.task.dto.res.CommonResponse;
 import com.cdri.task.repository.BookCategoryRepository;
 import com.cdri.task.repository.BookRepository;
+import com.cdri.task.repository.BookSpecification;
 import com.cdri.task.repository.CategoryRepository;
 import com.cdri.task.utils.HttpStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,18 +31,26 @@ public class BookService {
 
     @Transactional(readOnly = true)
     public CommonResponse<List<BookResDto>> getBookList() {
-        List<Book> books = bookRepository.findAll();
-        List<BookResDto> bookList = new ArrayList<>();
-        for (Book b : books) {
-            BookResDto resDto = new BookResDto();
-            resDto.setBookId(b.getId());
-            resDto.setWriter(b.getWriter());
-            resDto.setTitle(b.getTitle());
-            resDto.setCategoryList(b.getCategoryList().stream().map(bc -> bc.getCategory().getName()).collect(Collectors.toList()));
-            bookList.add(resDto);
-        }
+        return CommonResponse.response(HttpStatus.OK.getStatus(), "도서 목록 조회", getBookListResDto(bookRepository.findAll()));
+    }
 
-        return CommonResponse.response(HttpStatus.OK.getStatus(), "Book List Found.", bookList);
+    @Transactional(readOnly = true)
+    public CommonResponse<List<BookResDto>> getBookListByWriter(String keyword) {
+        Specification<Book> spec = Specification.where(BookSpecification.likeWriter(keyword));
+        return CommonResponse.response(HttpStatus.OK.getStatus(), "도서 검색 결과", getBookListResDto(bookRepository.findAll(spec)));
+    }
+
+    @Transactional(readOnly = true)
+    public CommonResponse<List<BookResDto>> getBookListByTitle(String keyword) {
+        Specification<Book> spec = Specification.where(BookSpecification.likeTitle(keyword));
+        return CommonResponse.response(HttpStatus.OK.getStatus(), "도서 검색 결과", getBookListResDto(bookRepository.findAll(spec)));
+    }
+
+    @Transactional(readOnly = true)
+    public CommonResponse<List<BookResDto>> getBookListByCategory(String keyword) {
+        Specification<Category> spec = Specification.where(BookSpecification.likeCategory(keyword));
+        List<BookCategory> bookCategories = bookCategoryRepository.findAllByCategoryIn(categoryRepository.findAll(spec));
+        return CommonResponse.response(HttpStatus.OK.getStatus(), "도서 검색 결과", getBookListResDto(bookRepository.findAllByCategoryListIn(bookCategories)));
     }
 
     @Transactional
@@ -68,6 +78,19 @@ public class BookService {
         for (Category c : categories) {
             bookCategoryRepository.save(BookCategory.builder().book(book).category(c).build());
         }
-        return CommonResponse.response(HttpStatus.OK.getStatus(), "Book Created.");
+        return CommonResponse.response(HttpStatus.OK.getStatus(), "도서 입력 완료");
+    }
+
+    private List<BookResDto> getBookListResDto(List<Book> books) {
+        List<BookResDto> bookList = new ArrayList<>();
+        for (Book b : books) {
+            BookResDto resDto = new BookResDto();
+            resDto.setBookId(b.getId());
+            resDto.setWriter(b.getWriter());
+            resDto.setTitle(b.getTitle());
+            resDto.setCategoryList(b.getCategoryList().stream().map(bc -> bc.getCategory().getName()).collect(Collectors.toList()));
+            bookList.add(resDto);
+        }
+        return bookList;
     }
 }
