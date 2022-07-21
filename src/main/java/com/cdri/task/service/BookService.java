@@ -4,9 +4,11 @@ import com.cdri.task.domain.Book;
 import com.cdri.task.domain.BookCategory;
 import com.cdri.task.domain.Category;
 import com.cdri.task.dto.req.BookReqDto;
+import com.cdri.task.dto.req.BookStatusReqDto;
 import com.cdri.task.dto.req.CategoryReqDto;
 import com.cdri.task.dto.res.BookCategoryResDto;
 import com.cdri.task.dto.res.BookResDto;
+import com.cdri.task.dto.res.BookStatusResDto;
 import com.cdri.task.dto.res.CommonResponse;
 import com.cdri.task.repository.BookCategoryRepository;
 import com.cdri.task.repository.BookRepository;
@@ -84,7 +86,7 @@ public class BookService {
     }
 
     @Transactional
-    public CommonResponse<BookCategoryResDto> updateCategory(Long bookId, CategoryReqDto reqDto) {
+    public CommonResponse<BookCategoryResDto> updateBookCategory(Long bookId, CategoryReqDto reqDto) {
         Book book = bookRepository.findById(bookId).orElse(null);
         List<BookCategory> newBookCategoryList = new ArrayList<>();
         for (String c : reqDto.getCategoryList()) {
@@ -106,6 +108,20 @@ public class BookService {
         resDto.setCategoryList(newBookCategoryList.stream().map(n -> n.getCategory().getName()).collect(Collectors.toList()));
 
         return CommonResponse.response(HttpStatus.OK.getStatus(), "도서 카테고리 수정", resDto);
+    }
+
+    @Transactional
+    public CommonResponse<BookStatusResDto> updateBookStatus(Long bookId, BookStatusReqDto reqDto) {
+        Book book = bookRepository.findById(bookId).orElse(null);
+        assert book != null;
+        book.updateBookStatus(reqDto.getStatus());
+
+        BookStatusResDto resDto = new BookStatusResDto();
+        resDto.setBookId(bookId);
+        resDto.setStatus(book.getBookStatus().name());
+        resDto.setAvailable(book.getBookStatus().isAvailable());
+
+        return CommonResponse.response(HttpStatus.OK.getStatus(), "도서 상태 변경", resDto);
     }
 
     private List<BookResDto> getBookListResDto(List<Book> books) {

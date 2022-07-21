@@ -41,4 +41,8 @@ public class Book extends TimeEntity {
     public void updateCategoryList(List<BookCategory> categoryList) {
         this.categoryList = categoryList;
     }
+
+    public void updateBookStatus(String status) {
+        this.bookStatus = BookStatus.valueOf(status);
+    }
 }

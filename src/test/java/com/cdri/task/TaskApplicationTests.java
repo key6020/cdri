@@ -3,6 +3,7 @@ package com.cdri.task;
 import com.cdri.task.domain.Book;
 import com.cdri.task.domain.BookCategory;
 import com.cdri.task.domain.Category;
+import com.cdri.task.dto.req.BookStatusReqDto;
 import com.cdri.task.dto.req.CategoryReqDto;
 import com.cdri.task.repository.BookCategoryRepository;
 import com.cdri.task.repository.BookRepository;
@@ -29,9 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -39,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-class TaskApplicationTests {
+class TaskApplicationTests  {
     Logger log = LoggerFactory.getLogger(TaskApplicationTests.class);
     @Autowired
     BookRepository bookRepository;
@@ -79,11 +78,11 @@ class TaskApplicationTests {
 
     @Transactional(readOnly = true)
     @Test
-    void getBookCategoryList() {
-        List<Book> books = bookRepository.findAll();
-        for (Book b : books) {
-            log.info("title : {}, writer : {}, category : {}", b.getTitle(), b.getWriter(), b.getCategoryList().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()));
-        }
+    void getBookCategoryList() throws Exception {
+        this.mockMvc.perform(MockMvcRequestBuilders.get("/v1/books")
+                        .contentType(MediaType.APPLICATION_JSON)
+                ).andExpect(status().isOk())
+                .andDo(print());
     }
 
     @Transactional(readOnly = true)
@@ -129,6 +128,21 @@ class TaskApplicationTests {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.categoryList").value(Matchers.containsInAnyOrder("새로운카테고리1", "새로운카테고리2")))
+                .andDo(print());
+    }
+
+    @Rollback(value = false)
+    @Transactional
+    @Test
+    void updateBookStatus() throws Exception {
+        BookStatusReqDto reqDto = new BookStatusReqDto();
+        reqDto.setStatus("분실");
+        this.mockMvc.perform(MockMvcRequestBuilders.patch("/v1/books/{bookId}/status", 16)
+                        .content(mapper.writeValueAsBytes(reqDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.status").value("분실"))
                 .andDo(print());
     }
 }

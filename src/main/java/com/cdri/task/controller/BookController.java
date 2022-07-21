@@ -1,8 +1,11 @@
 package com.cdri.task.controller;
 
 import com.cdri.task.dto.req.BookReqDto;
+import com.cdri.task.dto.req.BookStatusReqDto;
 import com.cdri.task.dto.req.CategoryReqDto;
+import com.cdri.task.dto.res.BookCategoryResDto;
 import com.cdri.task.dto.res.BookResDto;
+import com.cdri.task.dto.res.BookStatusResDto;
 import com.cdri.task.dto.res.CommonResponse;
 import com.cdri.task.service.BookService;
 import lombok.RequiredArgsConstructor;
@@ -51,10 +54,12 @@ public class BookController {
     }
 
     @PutMapping("/{bookId}/category")
-    public ResponseEntity<CommonResponse> updateCategory(@PathVariable("bookId") Long bookId, @Valid @RequestBody CategoryReqDto reqDto) {
-        return new ResponseEntity<>(bookService.updateCategory(bookId, reqDto), HttpStatus.OK);
+    public ResponseEntity<CommonResponse<BookCategoryResDto>> updateBookCategory(@PathVariable("bookId") Long bookId, @Valid @RequestBody CategoryReqDto reqDto) {
+        return new ResponseEntity<>(bookService.updateBookCategory(bookId, reqDto), HttpStatus.OK);
     }
 
-    // updateBookStatus
-//    @PutMapping("/books/{bookId}/status")
+    @PatchMapping("/{bookId}/status")
+    public ResponseEntity<CommonResponse<BookStatusResDto>> updateBookStatus(@PathVariable("bookId") Long bookId, @Valid @RequestBody BookStatusReqDto reqDto) {
+        return new ResponseEntity<>(bookService.updateBookStatus(bookId, reqDto), HttpStatus.OK);
+    }
 }
