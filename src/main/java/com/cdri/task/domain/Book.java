@@ -37,4 +37,8 @@ public class Book extends TimeEntity {
         this.title = title;
         this.bookStatus = BookStatus.정상;
     }
+
+    public void updateCategoryList(List<BookCategory> categoryList) {
+        this.categoryList = categoryList;
+    }
 }

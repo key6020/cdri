@@ -3,9 +3,12 @@ package com.cdri.task;
 import com.cdri.task.domain.Book;
 import com.cdri.task.domain.BookCategory;
 import com.cdri.task.domain.Category;
+import com.cdri.task.dto.req.CategoryReqDto;
 import com.cdri.task.repository.BookCategoryRepository;
 import com.cdri.task.repository.BookRepository;
 import com.cdri.task.repository.CategoryRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -18,12 +21,14 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -44,6 +49,8 @@ class TaskApplicationTests {
     BookCategoryRepository bookCategoryRepository;
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper mapper;
 
     @Rollback(value = false)
     @Transactional
@@ -106,6 +113,22 @@ class TaskApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("category", "문학")
                 ).andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value(Matchers.containsInAnyOrder("단순하게 배부르게", "게으른 사랑")))
+                .andDo(print());
+    }
+
+    @Rollback(value = false)
+    @Transactional
+    @Test
+    void updateCategory() throws Exception {
+        CategoryReqDto reqDto = new CategoryReqDto(Arrays.asList("새로운카테고리1", "새로운카테고리2"));
+
+        this.mockMvc.perform(MockMvcRequestBuilders.put("/v1/books/{bookId}/category", 16)
+                        .content(mapper.writeValueAsBytes(reqDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.categoryList").value(Matchers.containsInAnyOrder("새로운카테고리1", "새로운카테고리2")))
                 .andDo(print());
     }
 }

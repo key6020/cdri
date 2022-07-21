@@ -4,6 +4,8 @@ import com.cdri.task.domain.Book;
 import com.cdri.task.domain.BookCategory;
 import com.cdri.task.domain.Category;
 import com.cdri.task.dto.req.BookReqDto;
+import com.cdri.task.dto.req.CategoryReqDto;
+import com.cdri.task.dto.res.BookCategoryResDto;
 import com.cdri.task.dto.res.BookResDto;
 import com.cdri.task.dto.res.CommonResponse;
 import com.cdri.task.repository.BookCategoryRepository;
@@ -79,6 +81,31 @@ public class BookService {
             bookCategoryRepository.save(BookCategory.builder().book(book).category(c).build());
         }
         return CommonResponse.response(HttpStatus.OK.getStatus(), "도서 입력 완료");
+    }
+
+    @Transactional
+    public CommonResponse<BookCategoryResDto> updateCategory(Long bookId, CategoryReqDto reqDto) {
+        Book book = bookRepository.findById(bookId).orElse(null);
+        List<BookCategory> newBookCategoryList = new ArrayList<>();
+        for (String c : reqDto.getCategoryList()) {
+            Category category = categoryRepository.findByName(c);
+            if (category == null) {
+                category = Category.builder().name(c).build();
+                categoryRepository.save(category);
+            }
+            BookCategory bookCategory = BookCategory.builder().book(book).category(category).build();
+            newBookCategoryList.add(bookCategory);
+        }
+        bookCategoryRepository.deleteAllByBookId(bookId);
+
+        assert book != null;
+        book.updateCategoryList(newBookCategoryList);
+
+        BookCategoryResDto resDto = new BookCategoryResDto();
+        resDto.setBookId(bookId);
+        resDto.setCategoryList(newBookCategoryList.stream().map(n -> n.getCategory().getName()).collect(Collectors.toList()));
+
+        return CommonResponse.response(HttpStatus.OK.getStatus(), "도서 카테고리 수정", resDto);
     }
 
     private List<BookResDto> getBookListResDto(List<Book> books) {
