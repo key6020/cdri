@@ -131,16 +131,26 @@ public class BookService {
         return CommonResponse.response(HttpStatus.OK.getStatus(), "도서 상태 변경", resDto);
     }
 
+    @Transactional(readOnly = true)
+    public CommonResponse<BookResDto> getBookById(Long bookId) {
+        Book book = bookRepository.findByIdAndBookStatus(bookId, BookStatus.정상);
+        return CommonResponse.response(HttpStatus.OK.getStatus(), "도서 정보 조회", getBookResDto(book));
+    }
+
+    private BookResDto getBookResDto(Book book) {
+        BookResDto resDto = new BookResDto();
+        resDto.setBookId(book.getId());
+        resDto.setWriter(book.getWriter());
+        resDto.setTitle(book.getTitle());
+        resDto.setCategoryList(book.getCategoryList().stream().map(bc -> bc.getCategory().getName()).collect(Collectors.toList()));
+        return resDto;
+    }
+
     private List<BookResDto> getBookListResDto(List<Book> books) {
         books = books.stream().filter(b -> b.getBookStatus().equals(BookStatus.정상)).collect(Collectors.toList());
         List<BookResDto> bookList = new ArrayList<>();
         for (Book b : books) {
-            BookResDto resDto = new BookResDto();
-            resDto.setBookId(b.getId());
-            resDto.setWriter(b.getWriter());
-            resDto.setTitle(b.getTitle());
-            resDto.setCategoryList(b.getCategoryList().stream().map(bc -> bc.getCategory().getName()).collect(Collectors.toList()));
-            bookList.add(resDto);
+            bookList.add(getBookResDto(b));
         }
         return bookList;
     }

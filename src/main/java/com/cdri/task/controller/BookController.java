@@ -26,8 +26,6 @@ import java.util.List;
 public class BookController {
     private final BookService bookService;
 
-//    @GetMapping("/books/{bookId}")
-
     // 검색 조회 + 전체 도서 목록 조회
     @GetMapping()
     public ResponseEntity<CommonResponse<List<BookResDto>>> getBookListBySearch(@RequestParam(required = false) String writer,
@@ -67,5 +65,10 @@ public class BookController {
     @PatchMapping("/{bookId}/status")
     public ResponseEntity<CommonResponse<BookStatusResDto>> updateBookStatus(@PathVariable("bookId") Long bookId, @Valid @RequestBody BookStatusReqDto reqDto) {
         return new ResponseEntity<>(bookService.updateBookStatus(bookId, reqDto), HttpStatus.OK);
+    }
+
+    @GetMapping("/{bookId}")
+    public ResponseEntity<CommonResponse<BookResDto>> getBookById(@PathVariable("bookId") Long bookId) {
+        return new ResponseEntity<>(bookService.getBookById(bookId), HttpStatus.OK);
     }
 }

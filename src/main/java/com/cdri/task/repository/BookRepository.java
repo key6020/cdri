@@ -10,4 +10,6 @@ import java.util.List;
 
 public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificationExecutor<Book> {
     List<Book> findAllByBookStatusAndCategoryListIn(BookStatus bookStatus, List<BookCategory> categoryList);
+
+    Book findByIdAndBookStatus(Long id, BookStatus bookStatus);
 }

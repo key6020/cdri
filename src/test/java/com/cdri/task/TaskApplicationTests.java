@@ -61,15 +61,15 @@ class TaskApplicationTests {
         while (scanner.hasNext()) {
             String str = scanner.nextLine().trim();
             String[] temp1 = str.replace("[", "").split("]");
-            Category category = categoryRepository.findByName(temp1[0]);
+            Category category = categoryRepository.findByName(temp1[0].trim());
             if (category == null) {
-                category = Category.builder().name(temp1[0]).build();
+                category = Category.builder().name(temp1[0].trim()).build();
                 categoryRepository.save(category);
             }
             String[] temp2 = temp1[1].split(",");
             Book book = Book.builder()
-                    .writer(temp2[1])
-                    .title(temp2[0])
+                    .writer(temp2[1].trim())
+                    .title(temp2[0].trim())
                     .build();
             bookRepository.save(book);
             bookCategoryRepository.save(BookCategory.builder().book(book).category(category).build());
@@ -154,6 +154,16 @@ class TaskApplicationTests {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.status").value("분실"))
+                .andDo(print());
+    }
+
+    @Transactional(readOnly = true)
+    @Test
+    void getBookById() throws Exception {
+        this.mockMvc.perform(MockMvcRequestBuilders.get("/v1/books/{bookId}", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                ).andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.title").value("너에게 해주지 못한 말들"))
                 .andDo(print());
     }
 }
