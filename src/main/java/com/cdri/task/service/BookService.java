@@ -14,6 +14,7 @@ import com.cdri.task.repository.BookCategoryRepository;
 import com.cdri.task.repository.BookRepository;
 import com.cdri.task.repository.BookSpecification;
 import com.cdri.task.repository.CategoryRepository;
+import com.cdri.task.utils.BookStatus;
 import com.cdri.task.utils.HttpStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +55,7 @@ public class BookService {
     public CommonResponse<List<BookResDto>> getBookListByCategory(String keyword) {
         Specification<Category> spec = Specification.where(BookSpecification.likeCategory(keyword));
         List<BookCategory> bookCategories = bookCategoryRepository.findAllByCategoryIn(categoryRepository.findAll(spec));
-        return CommonResponse.response(HttpStatus.OK.getStatus(), "도서 검색 결과", getBookListResDto(bookRepository.findAllByCategoryListIn(bookCategories)));
+        return CommonResponse.response(HttpStatus.OK.getStatus(), "도서 검색 결과", getBookListResDto(bookRepository.findAllByBookStatusAndCategoryListIn(BookStatus.정상, bookCategories)));
     }
 
     @Transactional
@@ -125,6 +126,7 @@ public class BookService {
     }
 
     private List<BookResDto> getBookListResDto(List<Book> books) {
+        books = books.stream().filter(b -> b.getBookStatus().equals(BookStatus.정상)).collect(Collectors.toList());
         List<BookResDto> bookList = new ArrayList<>();
         for (Book b : books) {
             BookResDto resDto = new BookResDto();

@@ -78,7 +78,7 @@ class TaskApplicationTests  {
 
     @Transactional(readOnly = true)
     @Test
-    void getBookCategoryList() throws Exception {
+    void getBookList() throws Exception {
         this.mockMvc.perform(MockMvcRequestBuilders.get("/v1/books")
                         .contentType(MediaType.APPLICATION_JSON)
                 ).andExpect(status().isOk())
