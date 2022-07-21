@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-class TaskApplicationTests  {
+class TaskApplicationTests {
     Logger log = LoggerFactory.getLogger(TaskApplicationTests.class);
     @Autowired
     BookRepository bookRepository;
@@ -113,6 +113,17 @@ class TaskApplicationTests  {
                         .param("category", "문학")
                 ).andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title").value(Matchers.containsInAnyOrder("단순하게 배부르게", "게으른 사랑")))
+                .andDo(print());
+    }
+
+
+    @Transactional(readOnly = true)
+    @Test
+    void searchBooksByWriterOrTitle() throws Exception {
+        this.mockMvc.perform(MockMvcRequestBuilders.get("/v1/books/search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("keyword", "검색")
+                ).andExpect(status().isOk())
                 .andDo(print());
     }
 

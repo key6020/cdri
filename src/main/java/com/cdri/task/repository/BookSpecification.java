@@ -16,4 +16,8 @@ public class BookSpecification {
     public static Specification<Category> likeCategory(String category) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("name"), "%" + category + "%");
     }
+
+    public static Specification<Book> likeKeyword(String keyword) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.or(criteriaBuilder.like(root.get("writer"), "%" + keyword + "%"), criteriaBuilder.like(root.get("title"), "%" + keyword + "%"));
+    }
 }

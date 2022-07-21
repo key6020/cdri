@@ -26,7 +26,6 @@ import java.util.List;
 public class BookController {
     private final BookService bookService;
 
-    // getById
 //    @GetMapping("/books/{bookId}")
 
     // 검색 조회 + 전체 도서 목록 조회
@@ -47,6 +46,13 @@ public class BookController {
 
         return new ResponseEntity<>(bookService.getBookList(), HttpStatus.OK);
     }
+
+    // 지은이 or 도서명 검색 조회
+    @GetMapping("/search")
+    public ResponseEntity<CommonResponse<List<BookResDto>>> getBookListByKeyword(@RequestParam(required = false) String keyword) {
+        return new ResponseEntity<>(bookService.getBookListByKeyword(keyword), HttpStatus.OK);
+    }
+
 
     @PostMapping()
     public ResponseEntity<CommonResponse> saveBook(@Valid @RequestBody BookReqDto reqDto) {

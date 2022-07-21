@@ -58,6 +58,12 @@ public class BookService {
         return CommonResponse.response(HttpStatus.OK.getStatus(), "도서 검색 결과", getBookListResDto(bookRepository.findAllByBookStatusAndCategoryListIn(BookStatus.정상, bookCategories)));
     }
 
+    @Transactional(readOnly = true)
+    public CommonResponse<List<BookResDto>> getBookListByKeyword(String keyword) {
+        Specification<Book> spec = Specification.where(BookSpecification.likeKeyword(keyword));
+        return CommonResponse.response(HttpStatus.OK.getStatus(), "도서 검색 결과", getBookListResDto(bookRepository.findAll(spec)));
+    }
+
     @Transactional
     public <T> CommonResponse<T> createBook(BookReqDto reqDto) {
         List<Category> categories = new ArrayList<>();
