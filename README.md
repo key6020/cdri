@@ -3,7 +3,7 @@
 ### prerequisite
 - java 11, gradle, h2 <br>
 - TaskApplicationTests의 insertBookData() 실행하여 초기 도서 데이터 저장
-- application.yml 내용은 따로 전달
+- application.yml 내용은 하단 참고
   - 처음 실행하는 경우에만 ddl-auto: create, 이후에는 none
 
 ## API 문서
@@ -37,4 +37,40 @@
 ├─ repository
 ├─ service(Business Logic)
 └─ utils(Enum)
+```
+
+## application.yml
+```
+  spring:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/book
+    username: cdri
+    password:
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      #      ddl-auto: create
+      ddl-auto: none
+    properties:
+      hibernate:
+        #        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+        default_batch_fetch_size: 100
+    open-in-view: false
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+#    org.hibernate.type: trace
+
+server:
+  error:
+    include-exception: false
+    include-stacktrace: never
 ```
